@@ -44,4 +44,9 @@ enum PreviewContainer {
             fatalError("Failed to create preview container: \(error)")
         }
     }()
+    
+    static let movieSample: Movie = {
+        let movies = try? container.mainContext.fetch(FetchDescriptor<Movie>())
+        return movies?.first ?? Movie(title: "Interstellar", genre: "Sci-Fi", rating: 5, isFavorite: true)
+    }()
 }

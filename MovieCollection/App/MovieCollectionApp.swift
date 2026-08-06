@@ -13,7 +13,7 @@ struct MovieCollectionApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MoviesView()
         }
     }
 }

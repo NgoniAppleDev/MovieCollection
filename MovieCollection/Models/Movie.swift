@@ -25,3 +25,4 @@ final class Movie {
         self.createdAt = createdAt
     }
 }
+
