@@ -13,23 +13,48 @@ struct MovieListView: View {
     @Query(sort: \Movie.title) private var movies: [Movie]
     @Environment(\.modelContext) private var modelContext
     
-    init(primarySortOption: PrimarySort, secondarySortOption: SecondarySort) {
-        _movies = Query(
-            sort: [
-                primarySortOption.sortDescriptor,
-                secondarySortOption.sortDescriptor
-            ]
-        )
+    init(
+        primarySortOption: PrimarySort,
+        secondarySortOption: SecondarySort,
+        searchText: String
+    ) {
+        
+        let sortOptions = [
+            primarySortOption.sortDescriptor,
+            secondarySortOption.sortDescriptor
+        ]
+        
+        let predicate = #Predicate<Movie> {
+            $0.title.localizedStandardContains(searchText)
+        }
+        
+        if searchText.isTrimmedEmpty {
+            
+            _movies = Query(
+                sort: sortOptions
+            )
+        } else {
+            
+            _movies = Query(
+                filter: predicate,
+                sort: sortOptions
+            )
+        }
     }
     
     var body: some View {
         List {
-            ForEach(movies) { movie in
-                NavigationLink(value: movie) {
-                    MovieRow(movie: movie)
+            if movies.isEmpty {
+                ContentUnavailableView("No movies found.", systemImage: "movieclapper")
+            } else {
+                
+                ForEach(movies) { movie in
+                    NavigationLink(value: movie) {
+                        MovieRow(movie: movie)
+                    }
                 }
+                .onDelete(perform: deleteMovies)
             }
-            .onDelete(perform: deleteMovies)
         }
         .navigationDestination(for: Movie.self) { movie in
             EditMovieView(movie: movie)
@@ -48,7 +73,9 @@ struct MovieListView: View {
 #Preview {
     NavigationStack {
         MovieListView(
-            primarySortOption: .rating, secondarySortOption: .newest
+            primarySortOption: .rating,
+            secondarySortOption: .newest,
+            searchText: ""
         )
         .modelContainer(PreviewContainer.container)
     }

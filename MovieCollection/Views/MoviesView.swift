@@ -15,45 +15,53 @@ struct MoviesView: View {
     @State private var primarySortOption: PrimarySort = .title
     @State private var secondarySortOption: SecondarySort = .newest
     
+    @State private var searchText = ""
+    
     var body: some View {
         NavigationStack {
             MovieListView(
                 primarySortOption: primarySortOption,
-                secondarySortOption: secondarySortOption
+                secondarySortOption: secondarySortOption,
+                searchText: searchText
             )
             .navigationTitle("Movies")
             .toolbar {
                 
-                Menu {
-                    Picker("Primary", selection: $primarySortOption.animation()) {
-                        ForEach(PrimarySort.allCases) { option in
-                            Text(option.rawValue)
-                                .tag(option)
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Picker("Primary", selection: $primarySortOption.animation()) {
+                            ForEach(PrimarySort.allCases) { option in
+                                Text(option.rawValue)
+                                    .tag(option)
+                            }
                         }
-                    }
-                    
-                    Divider()
-                    
-                    Picker("Secondary", selection: $secondarySortOption.animation()) {
-                        ForEach(SecondarySort.allCases) { option in
-                            Text(option.rawValue)
-                                .tag(option)
+                        
+                        Divider()
+                        
+                        Picker("Secondary", selection: $secondarySortOption.animation()) {
+                            ForEach(SecondarySort.allCases) { option in
+                                Text(option.rawValue)
+                                    .tag(option)
+                            }
                         }
+                        
+                    } label: {
+                        Label("Sort", systemImage: "arrow.up.arrow.down")
                     }
-                    
-                } label: {
-                    Label("Sort", systemImage: "arrow.up.arrow.down")
                 }
                 
-                Button {
-                    showingCreateMovie = true
-                } label: {
-                    Label("Add Movie", systemImage: "plus")
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        showingCreateMovie = true
+                    } label: {
+                        Label("Add Movie", systemImage: "plus")
+                    }
                 }
             }
             .sheet(isPresented: $showingCreateMovie) {
                 CreateMovieView()
             }
+            .searchable(text: $searchText, prompt: "Search movies...")
         }
     }
 }
