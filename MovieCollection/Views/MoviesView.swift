@@ -10,24 +10,30 @@ import SwiftData
 
 struct MoviesView: View {
     
-    @State private var showingCreateMovie = false
+    @Query(sort: \Movie.genre) private var movies: [Movie]
     
+    @State private var showingCreateMovie = false
     @State private var primarySortOption: PrimarySort = .title
     @State private var secondarySortOption: SecondarySort = .newest
-    
     @State private var searchText = ""
+    @State private var selectedGenre: String?
+    
+    var genres: [String]  {
+        Array(Set(movies.map { $0.genre })).sorted()
+    }
     
     var body: some View {
         NavigationStack {
             MovieListView(
                 primarySortOption: primarySortOption,
                 secondarySortOption: secondarySortOption,
-                searchText: searchText
+                searchText: searchText,
+                genreFilter: selectedGenre ?? "All"
             )
             .navigationTitle("Movies")
             .toolbar {
                 
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItemGroup(placement: .topBarLeading) {
                     Menu {
                         Picker("Primary", selection: $primarySortOption.animation()) {
                             ForEach(PrimarySort.allCases) { option in
@@ -47,6 +53,27 @@ struct MoviesView: View {
                         
                     } label: {
                         Label("Sort", systemImage: "arrow.up.arrow.down")
+                    }
+                    
+                    Menu {
+                        
+                        Button("All", systemImage: selectedGenre == nil ? "checkmark" : "") {
+                            withAnimation {
+                                selectedGenre = nil
+                            }
+                        }
+                        
+                        Divider()
+                        
+                        Picker("Genre", selection: $selectedGenre.animation()) {
+                            ForEach(genres, id: \.self) { genre in
+                                Text(genre)
+                                    .tag(genre)
+                            }
+                        }
+                        
+                    } label: {
+                        Label("Sort", systemImage: "line.3.horizontal.decrease")
                     }
                 }
                 

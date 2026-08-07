@@ -16,7 +16,8 @@ struct MovieListView: View {
     init(
         primarySortOption: PrimarySort,
         secondarySortOption: SecondarySort,
-        searchText: String
+        searchText: String,
+        genreFilter: String = "All"
     ) {
         
         let sortOptions = [
@@ -24,22 +25,28 @@ struct MovieListView: View {
             secondarySortOption.sortDescriptor
         ]
         
-        let predicate = #Predicate<Movie> {
-            $0.title.localizedStandardContains(searchText)
-        }
-        
-        if searchText.isTrimmedEmpty {
+        if genreFilter == "All" {
             
             _movies = Query(
+                filter: #Predicate<Movie> {
+                    searchText.isTrimmedEmpty ||
+                    $0.title.localizedStandardContains(searchText)
+                },
                 sort: sortOptions
             )
         } else {
             
             _movies = Query(
-                filter: predicate,
+                filter: #Predicate<Movie> {
+                    (searchText.isTrimmedEmpty ||
+                     $0.title.localizedStandardContains(searchText)
+                    ) &&
+                    $0.genre == genreFilter
+                },
                 sort: sortOptions
             )
         }
+        
     }
     
     var body: some View {
@@ -68,6 +75,7 @@ struct MovieListView: View {
             }
         }
     }
+    
 }
 
 #Preview {
@@ -75,7 +83,8 @@ struct MovieListView: View {
         MovieListView(
             primarySortOption: .rating,
             secondarySortOption: .newest,
-            searchText: ""
+            searchText: "",
+            genreFilter: "All"
         )
         .modelContainer(PreviewContainer.container)
     }
