@@ -11,13 +11,18 @@ import SwiftData
 struct MoviesView: View {
     
     @Query(sort: \Movie.title) private var movies: [Movie]
-    
+    @Environment(\.modelContext) private var modelContext
     @State private var showingCreateMovie = false
     
     var body: some View {
         NavigationStack {
-            List(movies) { movie in
-                MovieRow(movie: movie)
+            List {
+                ForEach(movies) { movie in
+                    NavigationLink(value: movie) {
+                        MovieRow(movie: movie)
+                    }
+                }
+                .onDelete(perform: deleteMovies)
             }
             .navigationTitle("Movies")
             .toolbar {
@@ -29,6 +34,17 @@ struct MoviesView: View {
             }
             .sheet(isPresented: $showingCreateMovie) {
                 CreateMovieView()
+            }
+            .navigationDestination(for: Movie.self) { movie in
+                EditMovieView(movie: movie)
+            }
+        }
+    }
+    
+    private func deleteMovies(at offsets: IndexSet) {
+        withAnimation {
+            for index in offsets {
+                modelContext.delete(movies[index])
             }
         }
     }

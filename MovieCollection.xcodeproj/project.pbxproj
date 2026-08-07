@@ -6,7 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4E343FCD3025E29100FD1493 /* EditMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E343FCC3025E29100FD1493 /* EditMovieView.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		4E343FCC3025E29100FD1493 /* EditMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditMovieView.swift; sourceTree = "<group>"; };
 		4EAD8B873024F2A60029006D /* MovieCollection.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MovieCollection.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -32,6 +37,7 @@
 		4EAD8B7E3024F2A60029006D = {
 			isa = PBXGroup;
 			children = (
+				4E343FCC3025E29100FD1493 /* EditMovieView.swift */,
 				4EAD8B893024F2A60029006D /* MovieCollection */,
 				4EAD8B883024F2A60029006D /* Products */,
 			);
@@ -119,6 +125,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E343FCD3025E29100FD1493 /* EditMovieView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
