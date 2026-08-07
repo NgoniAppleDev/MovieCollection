@@ -17,15 +17,15 @@ final class MovieRepository {
         self.context = context
     }
     
-    func fetchMovies(using builder: MovieQueryBuilder = MovieQueryBuilder()) throws -> [Movie] {
+    func fetchMovies(using builder: MovieQueryBuilder) throws -> [Movie] {
         
         let descriptor = builder.build()
         
         return try context.fetch(descriptor)
     }
     
-    func fetchMovieGenres() throws -> [String] {
-        let movies = try fetchMovies()
+    func fetchMovieGenres(using builder: MovieQueryBuilder) throws -> [String] {
+        let movies = try fetchMovies(using: builder)
         
         return movies.map { $0.genre }
     }

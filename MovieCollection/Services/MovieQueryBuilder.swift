@@ -8,7 +8,6 @@
 import Foundation
 import SwiftData
 
-nonisolated
 struct MovieQueryBuilder {
     
     var searchText = ""
