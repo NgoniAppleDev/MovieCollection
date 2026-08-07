@@ -17,7 +17,8 @@ struct MovieListView: View {
         primarySortOption: PrimarySort,
         secondarySortOption: SecondarySort,
         searchText: String,
-        genreFilter: String = "All"
+        genreFilter: String = "All",
+        favoritesOnly: Bool = false
     ) {
         
         let sortOptions = [
@@ -25,27 +26,20 @@ struct MovieListView: View {
             secondarySortOption.sortDescriptor
         ]
         
-        if genreFilter == "All" {
-            
-            _movies = Query(
-                filter: #Predicate<Movie> {
-                    searchText.isTrimmedEmpty ||
-                    $0.title.localizedStandardContains(searchText)
-                },
-                sort: sortOptions
+        let predicate = #Predicate<Movie> {
+            (searchText.isTrimmedEmpty ||
+             $0.title.localizedStandardContains(searchText)
             )
-        } else {
-            
-            _movies = Query(
-                filter: #Predicate<Movie> {
-                    (searchText.isTrimmedEmpty ||
-                     $0.title.localizedStandardContains(searchText)
-                    ) &&
-                    $0.genre == genreFilter
-                },
-                sort: sortOptions
-            )
+            &&
+            (genreFilter == "All" || $0.genre == genreFilter)
+            &&
+            (!favoritesOnly || $0.isFavorite)
         }
+        
+        _movies = Query(
+            filter: predicate,
+            sort: sortOptions
+        )
         
     }
     

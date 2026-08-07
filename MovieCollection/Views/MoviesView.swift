@@ -17,6 +17,7 @@ struct MoviesView: View {
     @State private var secondarySortOption: SecondarySort = .newest
     @State private var searchText = ""
     @State private var selectedGenre: String?
+    @State private var favoritesOnly = false
     
     var genres: [String]  {
         Array(Set(movies.map { $0.genre })).sorted()
@@ -28,52 +29,64 @@ struct MoviesView: View {
                 primarySortOption: primarySortOption,
                 secondarySortOption: secondarySortOption,
                 searchText: searchText,
-                genreFilter: selectedGenre ?? "All"
+                genreFilter: selectedGenre ?? "All",
+                favoritesOnly: favoritesOnly
             )
             .navigationTitle("Movies")
             .toolbar {
                 
                 ToolbarItemGroup(placement: .topBarLeading) {
-                    Menu {
-                        Picker("Primary", selection: $primarySortOption.animation()) {
-                            ForEach(PrimarySort.allCases) { option in
-                                Text(option.rawValue)
-                                    .tag(option)
+                    Menu("Options", systemImage: "slider.horizontal.3") {
+                        Menu {
+                            Picker("Primary", selection: $primarySortOption.animation()) {
+                                ForEach(PrimarySort.allCases) { option in
+                                    Text(option.rawValue)
+                                        .tag(option)
+                                }
                             }
+                            
+                            Divider()
+                            
+                            Picker("Secondary", selection: $secondarySortOption.animation()) {
+                                ForEach(SecondarySort.allCases) { option in
+                                    Text(option.rawValue)
+                                        .tag(option)
+                                }
+                            }
+                            
+                        } label: {
+                            Label("Sort", systemImage: "arrow.up.arrow.down")
                         }
                         
-                        Divider()
-                        
-                        Picker("Secondary", selection: $secondarySortOption.animation()) {
-                            ForEach(SecondarySort.allCases) { option in
-                                Text(option.rawValue)
-                                    .tag(option)
+                        Menu {
+                            
+                            Button("All", systemImage: selectedGenre == nil ? "checkmark" : "") {
+                                withAnimation {
+                                    selectedGenre = nil
+                                }
                             }
+                            
+                            Divider()
+                            
+                            Picker("Genre", selection: $selectedGenre.animation()) {
+                                ForEach(genres, id: \.self) { genre in
+                                    Text(genre)
+                                        .tag(genre)
+                                }
+                            }
+                            
+                        } label: {
+                            Label("Genre", systemImage: "line.3.horizontal.decrease")
                         }
                         
-                    } label: {
-                        Label("Sort", systemImage: "arrow.up.arrow.down")
-                    }
-                    
-                    Menu {
-                        
-                        Button("All", systemImage: selectedGenre == nil ? "checkmark" : "") {
+                        Button(
+                            "Favorites Only",
+                            systemImage: favoritesOnly ? "heart.fill" : "heart"
+                        ) {
                             withAnimation {
-                                selectedGenre = nil
+                                favoritesOnly.toggle()
                             }
                         }
-                        
-                        Divider()
-                        
-                        Picker("Genre", selection: $selectedGenre.animation()) {
-                            ForEach(genres, id: \.self) { genre in
-                                Text(genre)
-                                    .tag(genre)
-                            }
-                        }
-                        
-                    } label: {
-                        Label("Sort", systemImage: "line.3.horizontal.decrease")
                     }
                 }
                 
