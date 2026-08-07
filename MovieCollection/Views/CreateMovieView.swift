@@ -10,8 +10,9 @@ import SwiftData
 
 struct CreateMovieView: View {
     
+    let movieViewModel: MovieViewModel
+    
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
     
     @State private var title = ""
     @State private var genre = ""
@@ -47,12 +48,14 @@ struct CreateMovieView: View {
             title: title, genre: genre, rating: rating, isFavorite: isFavorite
         )
         
-        modelContext.insert(movie)
+        movieViewModel.add(movie)
         
         dismiss()
     }
 }
 
 #Preview {
-    CreateMovieView()
+    CreateMovieView(
+        movieViewModel: .init(repository: PreviewContainer.repository)
+    )
 }

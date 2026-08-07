@@ -9,47 +9,21 @@ import SwiftUI
 import SwiftData
 
 struct MovieListView: View {
-    
-    @Query(sort: \Movie.title) private var movies: [Movie]
+
+    @State private var viewModel: MovieViewModel
     @Environment(\.modelContext) private var modelContext
     
-    init(
-        primarySortOption: PrimarySort,
-        secondarySortOption: SecondarySort,
-        searchText: String,
-        genreFilter: String = "All",
-        favoritesOnly: Bool = false
-    ) {
-        
-        let sortOptions = [
-            primarySortOption.sortDescriptor,
-            secondarySortOption.sortDescriptor
-        ]
-        
-        let predicate = #Predicate<Movie> {
-            (searchText.isTrimmedEmpty ||
-             $0.title.localizedStandardContains(searchText)
-            )
-            &&
-            (genreFilter == "All" || $0.genre == genreFilter)
-            &&
-            (!favoritesOnly || $0.isFavorite)
-        }
-        
-        _movies = Query(
-            filter: predicate,
-            sort: sortOptions
-        )
-        
+    init(viewModel: MovieViewModel) {
+        _viewModel = State(initialValue: viewModel)
     }
     
     var body: some View {
         List {
-            if movies.isEmpty {
+            if viewModel.movies.isEmpty {
                 ContentUnavailableView("No movies found.", systemImage: "movieclapper")
             } else {
                 
-                ForEach(movies) { movie in
+                ForEach(viewModel.movies) { movie in
                     NavigationLink(value: movie) {
                         MovieRow(movie: movie)
                     }
@@ -58,15 +32,20 @@ struct MovieListView: View {
             }
         }
         .navigationDestination(for: Movie.self) { movie in
-            EditMovieView(movie: movie)
+            EditMovieView(movie: movie, viewModel: viewModel)
+        }
+        .task {
+            viewModel.fetchMovies()
         }
     }
     
     private func deleteMovies(at offsets: IndexSet) {
         withAnimation {
             for index in offsets {
-                modelContext.delete(movies[index])
+                modelContext.delete(viewModel.movies[index])
             }
+            
+            viewModel.fetchMovies()
         }
     }
     
@@ -75,10 +54,9 @@ struct MovieListView: View {
 #Preview {
     NavigationStack {
         MovieListView(
-            primarySortOption: .rating,
-            secondarySortOption: .newest,
-            searchText: "",
-            genreFilter: "All"
+            viewModel: .init(repository:
+                    .init(context: PreviewContainer.container.mainContext)
+            )
         )
         .modelContainer(PreviewContainer.container)
     }

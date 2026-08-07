@@ -106,6 +106,10 @@ enum PreviewContainer {
         }
     }()
     
+    static let context: ModelContext = container.mainContext
+    
+    static let repository: MovieRepository = .init(context: context)
+    
     static let movieSample: Movie = {
         let movies = try? container.mainContext.fetch(FetchDescriptor<Movie>())
         return movies?.first ?? Movie(title: "Interstellar", genre: "Sci-Fi", rating: 5, isFavorite: true)

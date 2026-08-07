@@ -17,6 +17,11 @@ final class MovieRepository {
         self.context = context
     }
     
+    func add(_ movie: Movie) throws {
+        context.insert(movie)
+        try context.save()
+    }
+    
     func fetchMovies(using builder: MovieQueryBuilder) throws -> [Movie] {
         
         let descriptor = builder.build()
@@ -25,7 +30,8 @@ final class MovieRepository {
     }
     
     func fetchMovieGenres(using builder: MovieQueryBuilder) throws -> [String] {
-        let movies = try fetchMovies(using: builder)
+        let descriptor = builder.build()
+        let movies = try context.fetch(descriptor)
         
         return movies.map { $0.genre }
     }

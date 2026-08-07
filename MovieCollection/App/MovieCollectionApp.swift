@@ -6,14 +6,21 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct MovieCollectionApp: App {
     
+    let container: AppContainer
+    
+    init() {
+        container = AppContainer()
+    }
 
     var body: some Scene {
         WindowGroup {
-            MoviesView()
+            MoviesView(container: container)
+                .modelContainer(container.modelContainer)
         }
     }
 }

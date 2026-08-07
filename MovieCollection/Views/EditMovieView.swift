@@ -11,6 +11,8 @@ import SwiftData
 struct EditMovieView: View {
     
     @Bindable var movie: Movie
+    let viewModel: MovieViewModel
+    
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
@@ -39,6 +41,7 @@ struct EditMovieView: View {
             ToolbarItem(placement: .destructiveAction) {
                 Button("Delete", role: .destructive) {
                     modelContext.delete(movie)
+                    viewModel.fetchMovies()
                     dismiss()
                 }
             }
@@ -48,7 +51,12 @@ struct EditMovieView: View {
 
 #Preview {
     NavigationStack {
-        EditMovieView(movie: PreviewContainer.movieSample)
-            .modelContainer(PreviewContainer.container)
+        EditMovieView(
+            movie: PreviewContainer.movieSample,
+            viewModel: .init(repository: PreviewContainer.repository)
+        )
+        .modelContainer(
+            PreviewContainer.container
+        )
     }
 }

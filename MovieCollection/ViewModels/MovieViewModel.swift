@@ -16,15 +16,38 @@ final class MovieViewModel {
     
     var movies: [Movie] = []
     
-    var searchText = ""
-    var genre: String? = "All"
-    var favoritesOnly = false
-    var primarySort: PrimarySort = .title
-    var secondarySort: SecondarySort = .newest
+    var searchText = "" {
+        didSet {
+            fetchMovies()
+        }
+    }
+    var genre: String? {
+        didSet {
+            fetchMovies()
+        }
+    }
+    var favoritesOnly = false {
+        didSet {
+            fetchMovies()
+        }
+    }
+    var primarySort: PrimarySort = .title {
+        didSet {
+            fetchMovies()
+        }
+    }
+    var secondarySort: SecondarySort = .newest {
+        didSet {
+            fetchMovies()
+        }
+    }
+    
+    var genres: [String] = []
     
     init(repository: MovieRepository) {
         self.repository = repository
     }
+    
     
     func fetchMovies() {
         
@@ -39,8 +62,31 @@ final class MovieViewModel {
         do {
             
             movies = try repository.fetchMovies(using: builder)
+            genres = Array(Set(fetchMovieGenres())).sorted()
         } catch {
             print("Failed to fetch movies: \(error.localizedDescription)")
+        }
+    }
+    
+    func add(_ movie: Movie) {
+        do {
+            try repository.add(movie)
+            fetchMovies()
+        } catch {
+            print("Failed to add movie: \(error.localizedDescription)")
+        }
+    }
+    
+    private func fetchMovieGenres() -> [String] {
+        
+        let builder = MovieQueryBuilder()
+        
+        do {
+            
+            return try repository.fetchMovieGenres(using: builder)
+        } catch {
+            print("Failed to fetch movies: \(error.localizedDescription)")
+            return []
         }
     }
 }

@@ -10,35 +10,30 @@ import SwiftData
 
 struct MoviesView: View {
     
-    @Query(sort: \Movie.genre) private var movies: [Movie]
+    let container: AppContainer
     
+    @Environment(\.modelContext) private var modelContext
     @State private var showingCreateMovie = false
-    @State private var primarySortOption: PrimarySort = .title
-    @State private var secondarySortOption: SecondarySort = .newest
-    @State private var searchText = ""
-    @State private var selectedGenre: String?
-    @State private var favoritesOnly = false
+    @State private var movieViewModel: MovieViewModel
     
-    var genres: [String]  {
-        Array(Set(movies.map { $0.genre })).sorted()
+    init(container: AppContainer) {
+        self.container = container
+        
+        _movieViewModel = State(
+            initialValue: .init(repository: container.movieRepository)
+        )
     }
     
     var body: some View {
         NavigationStack {
-            MovieListView(
-                primarySortOption: primarySortOption,
-                secondarySortOption: secondarySortOption,
-                searchText: searchText,
-                genreFilter: selectedGenre ?? "All",
-                favoritesOnly: favoritesOnly
-            )
+            MovieListView(viewModel: movieViewModel)
             .navigationTitle("Movies")
             .toolbar {
                 
                 ToolbarItemGroup(placement: .topBarLeading) {
                     Menu("Options", systemImage: "slider.horizontal.3") {
                         Menu {
-                            Picker("Primary", selection: $primarySortOption.animation()) {
+                            Picker("Primary", selection: $movieViewModel.primarySort.animation()) {
                                 ForEach(PrimarySort.allCases) { option in
                                     Text(option.rawValue)
                                         .tag(option)
@@ -47,7 +42,7 @@ struct MoviesView: View {
                             
                             Divider()
                             
-                            Picker("Secondary", selection: $secondarySortOption.animation()) {
+                            Picker("Secondary", selection: $movieViewModel.secondarySort.animation()) {
                                 ForEach(SecondarySort.allCases) { option in
                                     Text(option.rawValue)
                                         .tag(option)
@@ -60,16 +55,16 @@ struct MoviesView: View {
                         
                         Menu {
                             
-                            Button("All", systemImage: selectedGenre == nil ? "checkmark" : "") {
+                            Button("All", systemImage: movieViewModel.genre == nil ? "checkmark" : "") {
                                 withAnimation {
-                                    selectedGenre = nil
+                                    movieViewModel.genre = nil
                                 }
                             }
                             
                             Divider()
                             
-                            Picker("Genre", selection: $selectedGenre.animation()) {
-                                ForEach(genres, id: \.self) { genre in
+                            Picker("Genre", selection: $movieViewModel.genre.animation()) {
+                                ForEach(movieViewModel.genres, id: \.self) { genre in
                                     Text(genre)
                                         .tag(genre)
                                 }
@@ -81,10 +76,10 @@ struct MoviesView: View {
                         
                         Button(
                             "Favorites Only",
-                            systemImage: favoritesOnly ? "heart.fill" : "heart"
+                            systemImage: movieViewModel.favoritesOnly ? "heart.fill" : "heart"
                         ) {
                             withAnimation {
-                                favoritesOnly.toggle()
+                                movieViewModel.favoritesOnly.toggle()
                             }
                         }
                     }
@@ -99,14 +94,19 @@ struct MoviesView: View {
                 }
             }
             .sheet(isPresented: $showingCreateMovie) {
-                CreateMovieView()
+                CreateMovieView(movieViewModel: movieViewModel)
             }
-            .searchable(text: $searchText, prompt: "Search movies...")
+            .searchable(text: $movieViewModel.searchText, prompt: "Search movies...")
         }
     }
 }
 
 #Preview {
-    MoviesView()
-        .modelContainer(PreviewContainer.container)
+    MoviesView(
+        container: AppContainer(
+            modelContainer: PreviewContainer.container,
+            movieRepository: PreviewContainer.repository
+        )
+    )
+    .modelContainer(PreviewContainer.container)
 }
