@@ -28,6 +28,9 @@ struct MovieRow: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 
+                Text(movie.createdAt, style: .date)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 
             }
             

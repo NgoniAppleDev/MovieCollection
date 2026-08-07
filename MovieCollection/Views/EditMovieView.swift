@@ -28,6 +28,10 @@ struct EditMovieView: View {
                 Stepper("Rating: \(movie.rating)", value: $movie.rating, in: 1...5)
                 Toggle("Favorite", isOn: $movie.isFavorite)
             }
+            
+            Section("Created on") {
+                Text(movie.createdAt.formatted(date: .abbreviated, time: .shortened))
+            }
         }
         .navigationTitle("Edit Movie")
         .navigationBarTitleDisplayMode(.inline)

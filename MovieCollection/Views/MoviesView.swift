@@ -10,22 +10,41 @@ import SwiftData
 
 struct MoviesView: View {
     
-    @Query(sort: \Movie.title) private var movies: [Movie]
-    @Environment(\.modelContext) private var modelContext
     @State private var showingCreateMovie = false
+    
+    @State private var primarySortOption: PrimarySort = .title
+    @State private var secondarySortOption: SecondarySort = .newest
     
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(movies) { movie in
-                    NavigationLink(value: movie) {
-                        MovieRow(movie: movie)
-                    }
-                }
-                .onDelete(perform: deleteMovies)
-            }
+            MovieListView(
+                primarySortOption: primarySortOption,
+                secondarySortOption: secondarySortOption
+            )
             .navigationTitle("Movies")
             .toolbar {
+                
+                Menu {
+                    Picker("Primary", selection: $primarySortOption.animation()) {
+                        ForEach(PrimarySort.allCases) { option in
+                            Text(option.rawValue)
+                                .tag(option)
+                        }
+                    }
+                    
+                    Divider()
+                    
+                    Picker("Secondary", selection: $secondarySortOption.animation()) {
+                        ForEach(SecondarySort.allCases) { option in
+                            Text(option.rawValue)
+                                .tag(option)
+                        }
+                    }
+                    
+                } label: {
+                    Label("Sort", systemImage: "arrow.up.arrow.down")
+                }
+                
                 Button {
                     showingCreateMovie = true
                 } label: {
@@ -34,17 +53,6 @@ struct MoviesView: View {
             }
             .sheet(isPresented: $showingCreateMovie) {
                 CreateMovieView()
-            }
-            .navigationDestination(for: Movie.self) { movie in
-                EditMovieView(movie: movie)
-            }
-        }
-    }
-    
-    private func deleteMovies(at offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(movies[index])
             }
         }
     }
